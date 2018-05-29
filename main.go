@@ -3,19 +3,34 @@ package main
 import (
 	"log"
 	"os"
+	"projects/Web-Scraper/config"
 	"projects/Web-Scraper/utils"
 
-	"github.com/anaskhan96/soup"
+	"github.com/gocolly/colly"
+	"github.com/gocolly/colly/proxy"
 )
 
+var pattern map[string][]string = map[string][]string{
+	"medium":  {"pre", "figure"},
+	"telegra": {"pre", "figure"},
+	"zen":     {"figure"},
+}
+
 func main() {
-	if len(os.Args) != 2 || !utils.IsURL(os.Args[1]) {
-		log.Fatalf("Usage main.go http[s]://web-site...")
+	if len(os.Args) != 2 || !utils.IsCorrectURL(os.Args[1]) {
+		log.Fatalf("Missing URL argument. Usage main.go http[s]://web-site...")
 	}
 	urlPath := os.Args[1]
-	request, err := soup.Get(urlPath)
-	if err != nil {
-		log.Fatal(err)
+	domain := utils.GetDomain(urlPath)
+
+	c := colly.NewCollector(colly.AllowURLRevisit())
+
+	if domain == "telegra" {
+		rp, err := proxy.RoundRobinProxySwitcher(config.Proxies...)
+		if err != nil {
+			log.Fatalf("Error when installing proxy ", err)
+		}
+		c.SetProxyFunc(rp)
 	}
-	//doc := soup.HTMLParse(request)
+	c.Visit(urlPath)
 }
