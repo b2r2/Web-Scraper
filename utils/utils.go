@@ -4,11 +4,24 @@ import (
 	"strings"
 )
 
-func IsURL(url string) bool {
+func IsCorrectURL(url string) bool {
+	correctUrl := []string{
+		"medium",
+		"telegra",
+	}
+	state := false
 	line := strings.Split(url, "://")
 	if line[0] == "http" || line[0] == "https" {
-		return true
-	} else {
-		return false
+		line = strings.Split(line[1], ".")
+		if line[0] == correctUrl[0] || line[0] == correctUrl[1] {
+			state = true
+		}
 	}
+	return state
+}
+
+func GetDomain(url string) string {
+	line := strings.Split(url, "://")
+	line = strings.Split(line[1], ".")
+	return line[0]
 }
