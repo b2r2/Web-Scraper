@@ -1,19 +1,22 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"projects/Web-Scraper/config"
 	"projects/Web-Scraper/utils"
+	"regexp"
 	"time"
+	"unicode/utf8"
 
 	"github.com/gocolly/colly"
 	"github.com/gocolly/colly/proxy"
 )
 
 var patterns map[string][]string = map[string][]string{
-	"medium":  {"section", "div"},
-	"telegra": {"main", "header", "article"},
+	"medium":  {`.postArticle-content`, "section"},
+	"telegra": {`.tl_article`, "article"},
 }
 
 func main() {
@@ -23,7 +26,7 @@ func main() {
 	urlPath := os.Args[1]
 	nameSite := utils.GetDomain(urlPath)
 
-	c := colly.NewCollector(colly.AllowURLRevisit())
+	c := colly.NewCollector()
 	// set proxy
 	if nameSite == "telegra" {
 		rp, err := proxy.RoundRobinProxySwitcher(config.Proxies...)
@@ -50,4 +53,30 @@ func main() {
 	})
 	c.Visit(urlPath)
 	c.Wait()
+	//parsing content page with support regular expressions
+	preparedString, err := parsePage(contentPage)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(utf8.RuneCountInString(preparedString))
+
+}
+
+func parsePage(contentPage []string) (string, error) {
+	var regString string
+	for _, text := range contentPage {
+		regString += text
+	}
+	re, err := regexp.Compile("\\p{Cyrillic}")
+	if err != nil {
+		return "", err
+	}
+	temp := re.FindAllString(regString, -1)
+
+	var totString string
+	for _, t := range temp {
+		totString += t
+	}
+	return totString, nil
 }
