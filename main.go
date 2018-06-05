@@ -64,15 +64,15 @@ func main() {
 }
 
 func parsePage(contentPage []string) (string, error) {
-	var regString string
+	var tempString string
 	for _, text := range contentPage {
-		regString += text
+		tempString += text
 	}
 	re, err := regexp.Compile("\\p{Cyrillic}")
 	if err != nil {
 		return "", err
 	}
-	temp := re.FindAllString(regString, -1)
+	temp := re.FindAllString(tempString, -1)
 
 	var totString string
 	for _, t := range temp {
