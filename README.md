@@ -1,4 +1,4 @@
-# Web-Scraping
+# Web-Scraper
 
 ## Installation
 
