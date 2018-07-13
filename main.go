@@ -20,13 +20,14 @@ var patterns map[string][]string = map[string][]string{
 }
 
 func main() {
-	if len(os.Args) != 2 || !utils.IsCorrectURL(os.Args[1]) {
+	if len(os.Args) < 2 || !utils.IsCorrectURL(os.Args[1]) {
 		log.Fatalf("Missing URL argument. Usage main.go http[s]://web-site...")
 	}
 	urlPath := os.Args[1]
 	nameSite := utils.GetDomain(urlPath)
 
-	c := colly.NewCollector()
+	c := colly.NewCollector(
+		colly.Async(true))
 	// set proxy
 	if nameSite == "telegra" {
 		rp, err := proxy.RoundRobinProxySwitcher(config.Proxies...)
